@@ -32,15 +32,16 @@ for(const key in select) {
   references[key] = document.querySelector(select[key]);
 }
 
-const socket = io();
-
+let socket;
 let userName;
 
 const login = event => {
   event.preventDefault();
   if(references.userNameInput.value) {
     userName = references.userNameInput.value;
+    socket = io();
     socket.emit('join', userName);
+    socket.on('message', addMessage);
     references.loginForm.classList.remove(classNames.show);
     references.messagesSection.classList.add(classNames.show);
   } else {
@@ -86,5 +87,3 @@ const sendMessage = event => {
 references.loginForm.addEventListener('submit', login);
 
 references.addMessageForm.addEventListener('submit', sendMessage);
-
-socket.on('message', addMessage);

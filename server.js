@@ -27,11 +27,9 @@ const io = socket(server);
 io.on('connection', socket => {
 
   socket.on('join', username => {
-    users.forEach(user => {
-      io.to(user.id).emit('message', {
-        author: bot,
-        content: username + botMessages.join,
-      });
+    socket.broadcast.emit('message', {
+      author: bot,
+      content: username + botMessages.join,
     });
     users.push({
       name: username,
@@ -41,11 +39,7 @@ io.on('connection', socket => {
 
   socket.on('message', message => {
     messages.push(message);
-    users.forEach(user => {
-      if(user.id !== socket.id) {
-        io.to(user.id).emit('message', message);
-      }
-    });
+    socket.broadcast.emit('message', message);
   });
 
   socket.on('disconnect', () => {
@@ -53,13 +47,11 @@ io.on('connection', socket => {
     if (index !== -1) {
       const userLeft = users[index].name;
       users.splice(index, 1);
-      users.forEach(user => {
-        io.to(user.id).emit('message', {
-          author: bot,
-          content: userLeft + botMessages.leave,
-        });
+      socket.broadcast.emit('message', {
+        author: bot,
+        content: userLeft + botMessages.leave,
       });
-    }    
+    }
   });
 
 });
